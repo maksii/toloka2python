@@ -188,9 +188,13 @@ class Toloka:
         soup = BeautifulSoup(self.html.text, "html.parser")
 
         # Get request to account url
-        me_html = self.session.get(
-            f"{self.toloka_url}/{soup.find('a', string='Профіль')['href']}"
-        ).text
+        profile_href = soup.find("a", string="Профіль")["href"]
+        profile_url = (
+            profile_href
+            if profile_href.startswith("http")
+            else f"{self.toloka_url}/{profile_href}"
+        )
+        me_html = self.session.get(profile_url).text
         return get_account_info(me_html)
 
     def get_account(self, url: str):
