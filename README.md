@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="assets/icon.png" alt="toloka2python logo" /><br>
+	<img src="https://raw.githubusercontent.com/maksii/toloka2python/main/assets/icon.png" alt="toloka2python logo" /><br>
 </p>
 
 # toloka2python
