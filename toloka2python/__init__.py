@@ -10,8 +10,9 @@ from datetime import datetime
 from toloka2python.models.torrent import TorrentElement, Torrent, TorrentFile
 from toloka2python.account import get_account_info
 
-logger = logging.getLogger(__name__)
+__version__ = "0.2.3"
 
+logger = logging.getLogger(__name__)
 
 class Toloka:
     """Class for interacting with the torrent tracker Toloka"""
