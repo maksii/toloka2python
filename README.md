@@ -21,10 +21,16 @@ Python library for getting information from the Ukrainian torrent tracker Toloka
 
 ## Installation
 
-Install directly from this fork:
+Install directly from this fork (runtime requirements are `requests` and `beautifulsoup4`):
 
 ```bash
 pip install git+https://github.com/maksii/toloka2python
+```
+
+If you want to install runtime requirements directly (e.g. for editable installs), use:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -63,6 +69,7 @@ pip install git+https://github.com/maksii/toloka2python
 Run the test suite and linting locally:
 
 ```bash
+pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ruff check .
 ```
