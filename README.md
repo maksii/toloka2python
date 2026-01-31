@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="assets/icon.png" alt="toloka2python logo" /><br>
+	<img src="https://raw.githubusercontent.com/maksii/toloka2python/main/assets/icon.png" alt="toloka2python logo" /><br>
 </p>
 
 # toloka2python
@@ -34,6 +34,14 @@ pip install git+https://github.com/maksii/toloka2python
 	from toloka2python import Toloka
 
 	toloka = Toloka("Username", "Password")
+	print(toloka.me)
+	```
+	To defer network activity (login) until you explicitly call it:
+	```python
+	from toloka2python import Toloka
+
+	toloka = Toloka("Username", "Password", login=False)
+	toloka.login()
 	print(toloka.me)
 	```
 2. Search torrents by title
