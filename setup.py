@@ -3,7 +3,7 @@ from pathlib import Path
 
 from setuptools import setup
 
-readme = Path("README.md").read_text(encoding="utf-8")
+readme = (Path(__file__).resolve().parent / "README.md").read_text(encoding="utf-8")
 long_description = readme.split("## Installation", 1)[0].strip()
 
 def read_version():
