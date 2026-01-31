@@ -66,13 +66,38 @@ pip install -r requirements.txt
 
 ## Development
 
-Run the test suite and linting locally:
+### Setup
+
+Install the package in editable mode so changes take effect immediately:
 
 ```bash
+pip install -e .
 pip install -r requirements-dev.txt
+```
+
+### Tests
+
+The test suite uses **mocks and HTML fixtures** (no real credentials or network). Run from the repo root:
+
+```bash
 python -m unittest discover -s tests -v
+```
+
+### Linting
+
+```bash
 ruff check .
 ```
+
+### Debugging with real credentials
+
+To debug the library against the real Toloka site (login, profile, search, etc.):
+
+1. Set `TOLOKA_USER` and `TOLOKA_PASSWORD` in your environment (see [scripts/README.md](scripts/README.md)).
+2. Run the live script from the repo root: `python scripts/debug_live.py`.
+3. Or use the **"Debug toloka2python (live)"** launch config in VS Code/Cursor (edit `.vscode/launch.json` to add your credentials to the `env` block; do not commit real passwords).
+
+Session cookies are stored in `debug_cookie.txt` (gitignored). See [scripts/README.md](scripts/README.md) for details.
 
 ## Maintainer
 
