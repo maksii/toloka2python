@@ -10,6 +10,8 @@ from datetime import datetime
 from toloka2python.models.torrent import TorrentElement, Torrent, TorrentFile
 from toloka2python.account import get_account_info
 
+__version__ = "0.2.3"
+
 # Set Logging
 logging.basicConfig(level=logging.DEBUG)
 
