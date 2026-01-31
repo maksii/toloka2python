@@ -40,4 +40,4 @@ where = ["."]
 include = ["toloka2python*"]
 
 [tool.setuptools.dynamic]
-version = { attr = "toloka2python.__version__" }
+version = { attr = "toloka2python.version.__version__" }
