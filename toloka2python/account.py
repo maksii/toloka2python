@@ -122,7 +122,7 @@ def get_account_info(html_text: str) -> Account:
         else None
     )
     logging.debug(thanks)
-    if thanks != None:
+    if thanks is not None:
         max_download = (
             torrent_profile_soup[8]
             .find("span", class_="leech")

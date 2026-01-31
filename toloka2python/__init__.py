@@ -1,10 +1,9 @@
-import requests
 import os
 import json
 import logging
 import re
-
 import requests
+
 from requests.exceptions import RequestException
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -238,7 +237,7 @@ class Toloka:
         author = ""
         try:
             author = soup.select_one("td.row1 span.name b a").text
-        except Exception as e:
+        except Exception:
             author = "Anonymous"
         thumb = soup.select_one("[rel=image_src]")["href"]
         img = soup.find("img", attrs={"alt": name})
