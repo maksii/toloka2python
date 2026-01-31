@@ -11,6 +11,15 @@ from toloka2python.models.torrent import TorrentElement, Torrent, TorrentFile
 from toloka2python.account import get_account_info
 from toloka2python.version import __version__
 
+__all__ = [
+    "__version__",
+    "Toloka",
+    "Torrent",
+    "TorrentElement",
+    "TorrentFile",
+    "get_account_info",
+]
+
 logger = logging.getLogger(__name__)
 
 class Toloka:
