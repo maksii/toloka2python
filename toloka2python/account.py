@@ -122,7 +122,16 @@ def get_account_info(html_text: str) -> Account:
         else None
     )
     logging.debug(thanks)
-    if thanks != None:
+    passkey = None
+    passkey_label = account_soup.find(
+        "span", string=lambda value: value and "Passkey" in value
+    )
+    if passkey_label:
+        passkey_row = passkey_label.find_parent("tr")
+        passkey_spans = passkey_row.find_all("span", class_="gen")
+        if 1 < len(passkey_spans):
+            passkey = passkey_spans[1].text
+    if thanks is not None:
         max_download = (
             torrent_profile_soup[8]
             .find("span", class_="leech")
@@ -135,7 +144,8 @@ def get_account_info(html_text: str) -> Account:
             .find("b")
             .text.replace("\xa0", " ")
         )
-        passkey = torrent_profile_soup[9].find_all("span", class_="gen")[1].text
+        if passkey is None:
+            passkey = torrent_profile_soup[9].find_all("span", class_="gen")[1].text
     else:
         max_download = (
             torrent_profile_soup[7]
@@ -149,7 +159,7 @@ def get_account_info(html_text: str) -> Account:
             .find("b")
             .text.replace("\xa0", " ")
         )
-        passkey = None
+        passkey = passkey
 
     return Account(
         account_url,

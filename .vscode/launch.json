@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug toloka2python (live)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/debug_live.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

@@ -1,33 +1,53 @@
 <p align="center">
-	<img src="assets/icon.png"/><br>
+	<img src="https://raw.githubusercontent.com/maksii/toloka2python/main/assets/icon.png" alt="toloka2python logo" /><br>
 </p>
 
-# toloka2python [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+# toloka2python
 
-<p align="center">
-<img src="https://img.shields.io/github/languages/code-size/CakesTwix/toloka2python?style=for-the-badge"/>
-<img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54"/>
-<img src="https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white"/><br><br>
-<a href="https://www.buymeacoffee.com/cakestwix"><img width="150" src="https://img.buymeacoffee.com/button-api/?text=Buy me a tea&emoji=🍵&slug=cakestwix&button_colour=FF5F5F&font_colour=ffffff&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00" /></a>
-</p>
+[![CI](https://github.com/maksii/toloka2python/actions/workflows/ci.yml/badge.svg)](https://github.com/maksii/toloka2python/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/GPL-3.0)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3670A0?logo=python&logoColor=ffdd54)](https://github.com/maksii/toloka2python)
+[![Code size](https://img.shields.io/github/languages/code-size/maksii/toloka2python)](https://github.com/maksii/toloka2python)
 
-Python library for getting information from Ukrainian torrent tracker Toloka. 
-> Note: The library is still under development and may not work in other places
+Python library for getting information from the Ukrainian torrent tracker Toloka.
 
-## Installing from git
+> Note: The library is still under development and may not work in all environments.
+
+## Features
+
+- Authenticate and fetch profile information.
+- Search torrents via HTML or API search.
+- Fetch torrent metadata and file lists.
+
+## Installation
+
+Install directly from this fork (runtime requirements are `requests` and `beautifulsoup4`):
+
 ```bash
-pip install git+https://github.com/CakesTwix/toloka2python
+pip install git+https://github.com/maksii/toloka2python
 ```
 
-> I don't want to upload to PyPi at the moment, I need to add more functionality first
+If you want to install runtime requirements directly (e.g. for editable installs), use:
 
-## Usage/Examples
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
 
 1. Authorization and getting information about yourself
 	```python
 	from toloka2python import Toloka
 
 	toloka = Toloka("Username", "Password")
+	print(toloka.me)
+	```
+	To defer network activity (login) until you explicitly call it:
+	```python
+	from toloka2python import Toloka
+
+	toloka = Toloka("Username", "Password", login=False)
+	toloka.login()
 	print(toloka.me)
 	```
 2. Search torrents by title
@@ -39,15 +59,54 @@ pip install git+https://github.com/CakesTwix/toloka2python
 	```python
 	print(toloka.get_account("https://toloka.to/u123456"))
 	```
-4. Getting information about torrent
+4. Getting information about a torrent
 	```python
 	print(toloka.get_torrent("https://toloka.to/t71117"))
 	```
-## Authors
 
-- [@CakesTwix](https://www.github.com/CakesTwix)
+## Development
+
+### Setup
+
+Install the package in editable mode so changes take effect immediately:
+
+```bash
+pip install -e .
+pip install -r requirements-dev.txt
+```
+
+### Tests
+
+The test suite uses **mocks and HTML fixtures** (no real credentials or network). Run from the repo root:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+### Linting
+
+```bash
+ruff check .
+```
+
+### Debugging with real credentials
+
+To debug the library against the real Toloka site (login, profile, search, etc.):
+
+1. Set `TOLOKA_USER` and `TOLOKA_PASSWORD` in your environment (see [scripts/README.md](scripts/README.md)).
+2. Run the live script from the repo root: `python scripts/debug_live.py`.
+3. Or use the **"Debug toloka2python (live)"** launch config in VS Code/Cursor (edit `.vscode/launch.json` to add your credentials to the `env` block; do not commit real passwords).
+
+Session cookies are stored in `debug_cookie.txt` (gitignored). See [scripts/README.md](scripts/README.md) for details.
+
+## Maintainer
+
+- [@maksii](https://github.com/maksii)
+
+## Original Author
+
+- [@CakesTwix](https://github.com/CakesTwix)
 
 ## License
 
-- [GPL-v3](https://choosealicense.com/licenses/gpl-3.0/)
-
+- [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)

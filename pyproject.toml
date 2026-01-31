@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toloka2python"
+dynamic = ["version"]
+description = "Бібліотека на пітоні для взаємодії з українським торрент-трекером Toloka"
+readme = "README.md"
+license = { text = "GPL-3.0-only" }
+authors = [
+    { name = "CakesTwix" },
+]
+maintainers = [
+    { name = "maksii" },
+]
+requires-python = ">=3.10"
+dependencies = [
+    "beautifulsoup4",
+    "requests",
+]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Source = "https://github.com/maksii/toloka2python"
+Issues = "https://github.com/maksii/toloka2python/issues"
+
+[tool.setuptools]
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["toloka2python*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "toloka2python.version.__version__" }

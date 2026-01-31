@@ -122,6 +122,10 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Toloka session / debug (never commit credentials or cookies)
+cookie.txt
+debug_cookie.txt
+
 # Environments
 .env
 .venv
