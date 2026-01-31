@@ -36,6 +36,14 @@ pip install git+https://github.com/maksii/toloka2python
 	toloka = Toloka("Username", "Password")
 	print(toloka.me)
 	```
+	To defer network activity (login) until you explicitly call it:
+	```python
+	from toloka2python import Toloka
+
+	toloka = Toloka("Username", "Password", login=False)
+	toloka.login()
+	print(toloka.me)
+	```
 2. Search torrents by title
 	```python
 	for torrent in toloka.search("Магія"):

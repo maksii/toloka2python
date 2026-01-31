@@ -10,8 +10,7 @@ from datetime import datetime
 from toloka2python.models.torrent import TorrentElement, Torrent, TorrentFile
 from toloka2python.account import get_account_info
 
-# Set Logging
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class Toloka:
@@ -33,7 +32,18 @@ class Toloka:
     cookie_file = "cookie.txt"
     max_login_attempts = 2  # Limit to prevent infinite login attempts
 
-    def __init__(self, username: str, password: str, ssl="on", file: str = None):
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        ssl="on",
+        file: str = None,
+        login: bool = True,
+    ):
+        """Initialize the Toloka client.
+
+        Set login=False to defer network authentication until login() is called.
+        """
         self.username = username
         self.password = password
         self.ssl = ssl
@@ -42,17 +52,18 @@ class Toloka:
         self.session.headers = self.headers
         self.login_attempts = 0
 
-        self.login()
+        if login:
+            self.login()
 
     def login(self):
         """Handle login and session management."""
         if not os.path.exists(self.file):
-            logging.info("No cookie file found. Logging in.")
+            logger.info("No cookie file found. Logging in.")
             self.perform_login()
         else:
-            logging.info("Loading cookies from file.")
+            logger.info("Loading cookies from file.")
             if not self.load_cookies():
-                logging.info("Cookie loading failed or expired, re-logging in.")
+                logger.info("Cookie loading failed or expired, re-logging in.")
                 self.perform_login()
 
     def perform_login(self):
@@ -75,15 +86,15 @@ class Toloka:
                 self.login_attempts = 0  # Reset login attempts after successful login
             else:
                 if self.login_attempts < self.max_login_attempts:
-                    logging.info("Initial cookie validation failed, trying again.")
+                    logger.info("Initial cookie validation failed, trying again.")
                     os.remove(self.file)
                     self.session.cookies.clear()  # Clear session cookies before retry
                     self.perform_login()  # Retry login
                 else:
-                    logging.error("Maximum login attempts reached, raising exception.")
+                    logger.error("Maximum login attempts reached, raising exception.")
                     raise Exception("Failed to validate cookies after maximum retries.")
         except RequestException as e:
-            logging.error(f"Failed to login: {e}")
+            logger.error(f"Failed to login: {e}")
             raise
 
     def load_cookies(self):
@@ -94,7 +105,7 @@ class Toloka:
                 self.session.cookies.update(requests.utils.cookiejar_from_dict(cookies))
             return self.validate_cookies()
         except (IOError, json.JSONDecodeError) as e:
-            logging.error(f"Error loading cookies: {e}")
+            logger.error(f"Error loading cookies: {e}")
             return False
 
     def validate_cookies(self):
@@ -102,9 +113,9 @@ class Toloka:
         check_url = f"{self.toloka_url}/f50"
         response = self.session.get(check_url)
         if "login.php?redirect=viewforum.php" in response.url:
-            logging.info("Cookies are invalid or expired.")
+            logger.info("Cookies are invalid or expired.")
             return False
-        logging.info("Cookies are valid.")
+        logger.info("Cookies are valid.")
         return True
 
     def save_cookies(self):
@@ -113,7 +124,7 @@ class Toloka:
             with open(self.file, "w", encoding="utf-8") as f:
                 json.dump(requests.utils.dict_from_cookiejar(self.session.cookies), f)
         except IOError as e:
-            logging.error(f"Failed to save cookies: {e}")
+            logger.error(f"Failed to save cookies: {e}")
 
     def search(self, nm):
         """Пошук торрентів за запитом"""
