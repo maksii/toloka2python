@@ -121,6 +121,7 @@ class Toloka:
         """Validate the cookies by checking if a protected page can be accessed."""
         check_url = f"{self.toloka_url}/f50"
         response = self.session.get(check_url)
+        response.raise_for_status()
         if "login.php?redirect=viewforum.php" in response.url:
             logger.info("Cookies are invalid or expired.")
             return False
@@ -140,6 +141,7 @@ class Toloka:
         result = self.session.get(
             f"{self.toloka_url}/tracker.php?nm={nm}&pn=&send=Пошук"
         )
+        result.raise_for_status()
         torrent_list = []
         soup = BeautifulSoup(result.text, "html.parser")
         for torrent in soup.find_all("tr", class_=["prow1", "prow2"]):
@@ -171,6 +173,7 @@ class Toloka:
     def searchv2(self, nm):
         """Пошук торрентів за запитом в API"""
         result = self.session.get(f"{self.toloka_url}/api.php?search={nm}")
+        result.raise_for_status()
         torrent_list = []
 
         data = result.json()
@@ -199,7 +202,9 @@ class Toloka:
     @property
     def html(self):
         """Отримати HTML головної сторінки"""
-        return self.session.get(self.toloka_url)
+        response = self.session.get(self.toloka_url)
+        response.raise_for_status()
+        return response
 
     @property
     def me(self):
@@ -214,17 +219,21 @@ class Toloka:
             if profile_href.startswith("http")
             else f"{self.toloka_url}/{profile_href}"
         )
-        me_html = self.session.get(profile_url).text
-        return get_account_info(me_html)
+        profile_resp = self.session.get(profile_url)
+        profile_resp.raise_for_status()
+        return get_account_info(profile_resp.text)
 
     def get_account(self, url: str):
         """Отримати інформацію про користувача за посиланням"""
-        # Get request to account url
-        return get_account_info(self.session.get(url).text)
+        resp = self.session.get(url)
+        resp.raise_for_status()
+        return get_account_info(resp.text)
 
     def get_torrent(self, url):
         """Отримати інформацію про торрент за посиланням"""
-        content = self.session.get(url + "?spmode=full&dl=names#torrent").text
+        resp = self.session.get(url + "?spmode=full&dl=names#torrent")
+        resp.raise_for_status()
+        content = resp.text
         # Remove extra whitespace, newline, and tab characters using regular expressions
         cleaned_content = re.sub(r"[\n\t]+", "", content)
         soup = BeautifulSoup(cleaned_content, "html.parser")
@@ -349,4 +358,6 @@ class Toloka:
         )
 
     def download_torrent(self, torrent_url: str):
-        return self.session.get(torrent_url).content
+        resp = self.session.get(torrent_url)
+        resp.raise_for_status()
+        return resp.content
