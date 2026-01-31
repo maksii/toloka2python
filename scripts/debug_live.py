@@ -11,6 +11,7 @@ Use this script for debugging the library with real network requests.
 """
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -34,6 +35,13 @@ def _full_url(toloka: Toloka, path: str) -> str:
 
 
 def main() -> None:
+    # Show library logs (login, cookies, etc.) in console during debug
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
     user = os.environ.get("TOLOKA_USER")
     password = os.environ.get("TOLOKA_PASSWORD")
     if not user or not password:
@@ -46,7 +54,9 @@ def main() -> None:
         sys.exit(1)
 
     cookie_file = REPO_ROOT / "debug_cookie.txt"
-    t = Toloka(user, password, file=str(cookie_file), login=True)
+    # login=False so you can set a breakpoint on t.login() or inside perform_login()
+    t = Toloka(user, password, file=str(cookie_file), login=False)
+    t.login()
 
     print("=" * 60)
     print("1. LOGIN")
