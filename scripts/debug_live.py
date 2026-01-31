@@ -9,6 +9,7 @@ Use this script for debugging the library with real network requests.
   Run from repo root:
     python scripts/debug_live.py
 """
+
 from __future__ import annotations
 
 import logging
@@ -52,8 +53,8 @@ def main() -> None:
         print(
             "Set TOLOKA_USER and TOLOKA_PASSWORD in the environment.\n"
             "Example (PowerShell):\n"
-            "  $env:TOLOKA_USER = \"your_username\"\n"
-            "  $env:TOLOKA_PASSWORD = \"your_password\""
+            '  $env:TOLOKA_USER = "your_username"\n'
+            '  $env:TOLOKA_PASSWORD = "your_password"'
         )
         sys.exit(1)
 
@@ -93,7 +94,9 @@ def main() -> None:
         print(f"  releases: {me.releases}")
         print(f"  thanks: {me.thanks}")
         print(f"  passkey: {(me.passkey[:8] + '...') if me.passkey else 'N/A'}")
-        upload_count = len(me.upload_torrent) if hasattr(me.upload_torrent, "__len__") else "N/A"
+        upload_count = (
+            len(me.upload_torrent) if hasattr(me.upload_torrent, "__len__") else "N/A"
+        )
         print(f"  upload_torrent count: {upload_count}\n")
 
         print("=" * 60)
@@ -104,7 +107,9 @@ def main() -> None:
         print(f"  Total results: {len(search_results)}")
         for i, e in enumerate(search_results[:MAX_SEARCH_RESULTS], 1):
             print(f"  [{i}] {e.name[:70]}{'...' if len(e.name) > 70 else ''}")
-            print(f"      forum={e.forum} | size={e.size} | S:{e.seeders} L:{e.leechers} | {e.date}")
+            print(
+                f"      forum={e.forum} | size={e.size} | S:{e.seeders} L:{e.leechers} | {e.date}"
+            )
             print(f"      url={e.url}")
         print()
 
@@ -116,7 +121,9 @@ def main() -> None:
         print(f"  Total results: {len(searchv2_results)}")
         for i, e in enumerate(searchv2_results[:MAX_SEARCH_RESULTS], 1):
             print(f"  [{i}] {e.name[:70]}{'...' if len(e.name) > 70 else ''}")
-            print(f"      size={e.size} | seeders={e.seeders} leechers={e.leechers} | answers={e.answers}")
+            print(
+                f"      size={e.size} | seeders={e.seeders} leechers={e.leechers} | answers={e.answers}"
+            )
         print()
 
         if search_results:

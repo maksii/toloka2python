@@ -22,6 +22,7 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
+
 class Toloka:
     """Class for interacting with the torrent tracker Toloka"""
 
@@ -285,7 +286,9 @@ class Toloka:
         img = (
             img.get("src")
             if img
-            else f"https:{img_alt.get('src')}" if img_alt else None
+            else f"https:{img_alt.get('src')}"
+            if img_alt
+            else None
         )
 
         torrent_name = soup.find("tr", class_="row6_to").text

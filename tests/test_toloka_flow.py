@@ -112,7 +112,9 @@ class TestTolokaFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             cookie_file = f"{tmp_dir}/cookies.json"
             with patch.object(Toloka, "toloka_url", "https://example.test"):
-                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                with patch(
+                    "toloka2python.requests.Session", return_value=FakeSession()
+                ):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             torrents = toloka.search("Sample Release")
@@ -151,7 +153,9 @@ class TestTolokaFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             cookie_file = f"{tmp_dir}/cookies.json"
             with patch.object(Toloka, "toloka_url", "https://example.test"):
-                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                with patch(
+                    "toloka2python.requests.Session", return_value=FakeSession()
+                ):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             torrents = toloka.search("Sample")
@@ -162,7 +166,9 @@ class TestTolokaFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             cookie_file = f"{tmp_dir}/cookies.json"
             with patch.object(Toloka, "toloka_url", "https://example.test"):
-                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                with patch(
+                    "toloka2python.requests.Session", return_value=FakeSession()
+                ):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             torrents = toloka.search("NoResults")
@@ -172,7 +178,9 @@ class TestTolokaFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             cookie_file = f"{tmp_dir}/cookies.json"
             with patch.object(Toloka, "toloka_url", "https://example.test"):
-                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                with patch(
+                    "toloka2python.requests.Session", return_value=FakeSession()
+                ):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             torrents = toloka.search("")
@@ -212,7 +220,9 @@ class TestTolokaFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             cookie_file = f"{tmp_dir}/cookies.json"
             with patch.object(Toloka, "toloka_url", "https://example.test"):
-                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                with patch(
+                    "toloka2python.requests.Session", return_value=FakeSession()
+                ):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             torrent = toloka.get_torrent("https://example.test/t100002")
@@ -231,11 +241,14 @@ class TestTolokaFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             cookie_file = f"{tmp_dir}/cookies.json"
             with patch.object(Toloka, "toloka_url", "https://example.test"):
-                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                with patch(
+                    "toloka2python.requests.Session", return_value=FakeSession()
+                ):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             with self.assertRaises(ValueError):
                 toloka.get_torrent("https://example.test/t000000")
+
 
 if __name__ == "__main__":
     unittest.main()
