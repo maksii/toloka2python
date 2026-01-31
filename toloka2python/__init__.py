@@ -208,6 +208,8 @@ class Toloka:
         # Remove extra whitespace, newline, and tab characters using regular expressions
         cleaned_content = re.sub(r"[\n\t]+", "", content)
         soup = BeautifulSoup(cleaned_content, "html.parser")
+        if soup.find(string=re.compile("Такої теми чи такого повідомлення не існує")):
+            raise ValueError("Torrent topic not found or inaccessible.")
 
         description = ""
         try:
@@ -231,18 +233,23 @@ class Toloka:
         except Exception as e:
             description = e
 
-        name = soup.find("a", class_="maintitle").text
-        url = soup.find("a", class_="maintitle")["href"].replace("/", "")
+        maintitle = soup.find("a", class_="maintitle")
+        if not maintitle:
+            raise ValueError("Torrent page is missing expected title data.")
+
+        name = maintitle.text
+        url = maintitle["href"].replace("/", "")
         forum = soup.select_one("td[class='nav'] h2:nth-of-type(2) a").text
         forum_url = soup.select_one("td[class='nav'] h2:nth-of-type(2) a")[
             "href"
         ].replace("f", "tracker.php?f=")
 
-        author = ""
-        try:
-            author = soup.select_one("td.row1 span.name b a").text
-        except Exception:
-            author = "Anonymous"
+        author = "Anonymous"
+        author_tag = soup.select_one("span.name")
+        if author_tag:
+            author_text = author_tag.get_text(strip=True).replace("\xa0", " ").strip()
+            if author_text:
+                author = author_text
         thumb = soup.select_one("[rel=image_src]")["href"]
         img = soup.find("img", attrs={"alt": name})
         img_alt = soup.select_one(".postbody > [align=center] img")
@@ -253,8 +260,11 @@ class Toloka:
         )
 
         torrent_name = soup.find("tr", class_="row6_to").text
+        registered_cell = soup.find("td", string=re.compile(r"Зареєстрований"))
         registered_date = (
-            soup.find("td", string=" Зареєстрований: ").find_next("td").contents[0][3:]
+            registered_cell.find_next("td").get_text(strip=True).lstrip("-")
+            if registered_cell
+            else ""
         )
         size = (
             soup.find("td", string=" Розмір: ")
@@ -268,26 +278,30 @@ class Toloka:
 
         torrent_files = []
         torrent_files_table = soup.select(".files-wrap tr")
+        folder_name = None
+        rows_to_parse = torrent_files_table
+        if torrent_files_table:
+            first_row = torrent_files_table[0]
+            first_cell = first_row.find("td")
+            first_cell_text = first_cell.get_text(strip=True) if first_cell else ""
+            if "Папка" in first_cell_text:
+                folder_cell = first_row.select_one("td[align=left]")
+                folder_name = folder_cell.get_text(strip=True) if folder_cell else None
+                rows_to_parse = torrent_files_table[1:]
 
-        # Extract folder name
-        folder_name = (
-            torrent_files_table[0].select_one("td[align=left]").text.strip()
-            if torrent_files_table[0].select_one("td[align=left]")
-            else None
-        )
-
-        # Iterate over the rows, skip the first row with folder name
-        for row in torrent_files_table[1:]:
+        for row in rows_to_parse:
             td_elements = row.find_all("td")
             if len(td_elements) >= 3:  # Ensure there are enough columns in this row
+                name_align = td_elements[1].get("align")
                 row_file_name = (
-                    td_elements[1].text.strip()
-                    if td_elements[1].get("align") == "left"
+                    td_elements[1].get_text(strip=True)
+                    if name_align in (None, "left")
                     else ""
                 )
+                size_align = td_elements[2].get("align")
                 row_size = (
-                    td_elements[2].text.strip().replace("\xa0", " ")
-                    if td_elements[2].get("align") == "right"
+                    td_elements[2].get_text(strip=True).replace("\xa0", " ")
+                    if size_align in (None, "right")
                     else ""
                 )
                 if (

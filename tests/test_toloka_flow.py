@@ -26,49 +26,13 @@ SEARCH_NO_RESULT_HTML = (EXAMPLES_DIR / "search_by_name_no_result.html").read_te
 SEARCH_INITIAL_HTML = (
     EXAMPLES_DIR / "search_all_no_param_initial_state.html"
 ).read_text(encoding="utf-8")
-
-TORRENT_HTML = """
-<html>
-  <head>
-    <link rel="image_src" href="thumb.jpg"/>
-  </head>
-  <body>
-    <div>Відео: Example video details MediaInfo</div>
-    <a class="maintitle" href="/t123">Sample Torrent</a>
-    <td class="nav"><h2>Ignore</h2><h2><a href="f100">Movies</a></h2></td>
-    <td class="row1"><span class="name"><b><a>Uploader</a></b></span></td>
-    <img alt="Sample Torrent" src="poster.jpg"/>
-    <tr class="row6_to">\n  Sample Torrent Name  \n</tr>
-    <table>
-      <tr>
-        <td>\u00a0Зареєстрований:\u00a0</td>
-        <td>---2024-01-01</td>
-      </tr>
-      <tr>
-        <td>\u00a0Розмір:\u00a0</td>
-        <td><span>700\u00a0MB</span></td>
-      </tr>
-      <tr>
-        <td>\u00a0Подякували:\u00a0</td>
-        <td><span>11</span></td>
-      </tr>
-    </table>
-    <span itemprop="ratingValue">4.5</span>
-    <a>Ignore</a>
-    <a href="/download.torrent">Завантажити</a>
-    <div class="files-wrap">
-      <tr>
-        <td align="left">Sample Folder</td>
-      </tr>
-      <tr>
-        <td>ignore</td>
-        <td align="left">file1.mkv</td>
-        <td align="right">700\u00a0MB</td>
-      </tr>
-    </div>
-  </body>
-</html>
-"""
+RELEASE_ANON_MOVIE_HTML = (
+    EXAMPLES_DIR / "release_anon_movie_single_file.html"
+).read_text(encoding="utf-8")
+RELEASE_TV_HTML = (EXAMPLES_DIR / "release_tv.html").read_text(encoding="utf-8")
+NOT_AUTH_RELEASE_HTML = (EXAMPLES_DIR / "not_auth_release.htm").read_text(
+    encoding="utf-8"
+)
 
 
 class FakeResponse:
@@ -107,7 +71,7 @@ class FakeSession:
                     {
                         "forum_name": "Forum",
                         "forum_parent": "forum-url",
-                        "link": "https://toloka.to/t123",
+                        "link": "https://example.test/t123",
                         "title": "Sample Torrent",
                         "size": "1 GB",
                         "seeders": 10,
@@ -131,7 +95,13 @@ class FakeSession:
         if parsed_url.path.startswith("/u"):
             return FakeResponse(text=ACCOUNT_HTML, url=url)
         if "spmode=full" in url:
-            return FakeResponse(text=TORRENT_HTML, url=url)
+            if parsed_url.path.endswith("/t100001"):
+                return FakeResponse(text=RELEASE_ANON_MOVIE_HTML, url=url)
+            if parsed_url.path.endswith("/t100002"):
+                return FakeResponse(text=RELEASE_TV_HTML, url=url)
+            if parsed_url.path.endswith("/t000000"):
+                return FakeResponse(text=NOT_AUTH_RELEASE_HTML, url=url)
+            return FakeResponse(text=RELEASE_ANON_MOVIE_HTML, url=url)
         if url in {"https://toloka.to", "https://example.test"}:
             return FakeResponse(text=self.default_main_html, url=url)
         return FakeResponse(text="", url=url)
@@ -153,14 +123,22 @@ class TestTolokaFlow(unittest.TestCase):
             self.assertEqual(api_torrents[0].seeders, 10)
 
             me = toloka.me
-            self.assertEqual(me.id, "https://example.test/u000001")
+            self.assertEqual(me.id, "https://example.test/u100001")
 
-            account = toloka.get_account("https://example.test/u000001")
-            self.assertEqual(account.passkey, "FAKEPASSKEY")
+            account = toloka.get_account("https://example.test/u100001")
+            self.assertEqual(account.passkey, "FAKE-PASSKEY-1234")
 
-            torrent = toloka.get_torrent("https://example.test/t123")
-            self.assertEqual(torrent.forum, "Movies")
-            self.assertEqual(torrent.files[0].file_name, "file1.mkv")
+            torrent = toloka.get_torrent("https://example.test/t100001")
+            self.assertEqual(torrent.forum, "Аніме")
+            self.assertEqual(torrent.author, "Anonymous")
+            self.assertEqual(
+                torrent.files[0].file_name,
+                "Sample.Movie.2025.1080p.WEB-DL.mkv",
+            )
+            self.assertEqual(torrent.files[0].size, "6.09 GB")
+            self.assertEqual(
+                torrent.torrent_url, "https://example.test/download.php?id=100001"
+            )
 
             content = toloka.download_torrent("https://example.test/download.torrent")
             self.assertEqual(content, b"torrent-bytes")
@@ -229,6 +207,35 @@ class TestTolokaFlow(unittest.TestCase):
                     toloka = Toloka("user", "pass", file=cookie_file)
 
             self.assertIn("Вхід", toloka.html.text)
+
+    def test_get_torrent_with_folder_listing(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            cookie_file = f"{tmp_dir}/cookies.json"
+            with patch.object(Toloka, "toloka_url", "https://example.test"):
+                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                    toloka = Toloka("user", "pass", file=cookie_file)
+
+            torrent = toloka.get_torrent("https://example.test/t100002")
+            self.assertEqual(torrent.forum, "Аніме")
+            self.assertEqual(
+                torrent.files[0].folder_name, "Series Sample (WEBDL) [720p]"
+            )
+            self.assertEqual(
+                torrent.files[0].file_name,
+                "Series Sample - 01 [WEBDL 720p] Ukr VO.mkv",
+            )
+            self.assertEqual(torrent.files[0].size, "399 MB")
+            self.assertGreaterEqual(len(torrent.files), 13)
+
+    def test_get_torrent_missing_release_raises(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            cookie_file = f"{tmp_dir}/cookies.json"
+            with patch.object(Toloka, "toloka_url", "https://example.test"):
+                with patch("toloka2python.requests.Session", return_value=FakeSession()):
+                    toloka = Toloka("user", "pass", file=cookie_file)
+
+            with self.assertRaises(ValueError):
+                toloka.get_torrent("https://example.test/t000000")
 
 if __name__ == "__main__":
     unittest.main()
