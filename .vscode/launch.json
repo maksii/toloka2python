@@ -8,10 +8,7 @@
       "program": "${workspaceFolder}/scripts/debug_live.py",
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
-      "env": {
-        "TOLOKA_USER": "your_username",
-        "TOLOKA_PASSWORD": "your_password"
-      }
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

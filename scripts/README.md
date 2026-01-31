@@ -28,7 +28,7 @@ export TOLOKA_USER=your_username
 export TOLOKA_PASSWORD=your_password
 ```
 
-Optional: copy `.env.example` to `.env` in the repo root and fill in values. The `.env` file is gitignored. If you use `python-dotenv`, load it at the start of a script; `debug_live.py` does not load `.env` by default so that env vars remain the single source of truth for docs and launch configs.
+**Recommended for the debugger:** Copy `.env.example` to `.env` in the repo root and fill in your credentials. The launch config **"Debug toloka2python (live)"** loads env from `.env` (see `envFile` in `.vscode/launch.json`), so you never put secrets in `launch.json` and git does not track credential changes.
 
 ## Scripts
 
@@ -48,5 +48,4 @@ Uses `debug_cookie.txt` in the repo root for the session (gitignored) so it does
 
 1. Open the repo in VS Code or Cursor.
 2. Set breakpoints in `toloka2python/` (e.g. in `perform_login`, `get_account_info`).
-3. Use the **"Debug toloka2python (live)"** launch configuration. It runs `scripts/debug_live.py` and injects `TOLOKA_USER` and `TOLOKA_PASSWORD` from the config.
-4. Edit `.vscode/launch.json` and set your credentials in the `env` block for that configuration (do not commit real passwords; consider using a local override or environment).
+3. Use the **"Debug toloka2python (live)"** launch configuration. It runs `scripts/debug_live.py` and loads `TOLOKA_USER` and `TOLOKA_PASSWORD` from `.env` (no credentials in `launch.json`).
